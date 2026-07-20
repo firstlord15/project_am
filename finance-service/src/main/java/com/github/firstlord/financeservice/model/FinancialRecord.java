@@ -31,13 +31,6 @@ public class FinancialRecord {
     private String userId;
 
     /**
-     * Категория транзакции.
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
-
-    /**
      * Краткое название записи.
      */
     @Column(nullable = false)
@@ -46,7 +39,7 @@ public class FinancialRecord {
     /**
      * Количество или объем проданного/купленного.
      */
-    @Column(nullable = false, precision = 19, scale = 4)
+    @Column(precision = 19, scale = 4)
     private BigDecimal quantity;
 
     /**
@@ -59,7 +52,7 @@ public class FinancialRecord {
     /**
      * Цена за одну единицу измерения.
      */
-    @Column(nullable = false, precision = 19, scale = 4)
+    @Column(precision = 19, scale = 4)
     private BigDecimal unitPrice;
 
     /**
@@ -75,6 +68,13 @@ public class FinancialRecord {
      */
     @Column(nullable = false)
     private String comment;
+
+    /**
+     * Категория транзакции.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     /**
      * Дата и время создания записи.
