@@ -2,14 +2,17 @@ package com.github.firstlord.financeservice.model;
 
 import com.github.firstlord.financeservice.enums.CategoryType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
 @Data
 @Entity
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class Category {
 
     /**
@@ -32,15 +35,9 @@ public class Category {
     private String name;
 
     /**
-     * Описание категории.
-     */
-    @Column(nullable = false)
-    private String description;
-
-    /**
      * Тип категории.
      */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CategoryType categoryType;
+    private CategoryType type;
 }
