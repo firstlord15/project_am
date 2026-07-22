@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
@@ -32,7 +31,7 @@ public class Category {
      * Название категории.
      */
     @Column(unique = true, nullable = false)
-    private String name;
+    private String title;
 
     /**
      * Тип категории.

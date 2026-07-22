@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface CategoryStatsDTO {
     UUID getCategoryId();
-    String getCategoryName();
+    String getCategoryTitle();
     CategoryType getCategoryType();
     Long getRecordsCount();
     BigDecimal getTotalAmount();

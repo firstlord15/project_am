@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class CategoryUpdateDTO {
     @NotBlank(message = "Category name is required")
     @Size(max = 255)
-    private String name;
+    private String title;
 
     @NotNull(message = "Category type is required")
     private CategoryType type;

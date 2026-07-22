@@ -10,6 +10,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class CategoryResponseDTO {
     private UUID id;
-    private String name;
+    private String title;
     private CategoryType type;
 }
