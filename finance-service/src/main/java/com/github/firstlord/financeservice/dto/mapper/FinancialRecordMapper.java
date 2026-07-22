@@ -10,7 +10,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface FinancialRecordMapper {
 
-    @Mapping(target = "categoryName", source = "category.name")
+    @Mapping(target = "categoryTitle", source = "category.title")
     @Mapping(target = "categoryType", source = "category.type")
     FinancialRecordShortDTO toShortDTO(FinancialRecord record);
 
