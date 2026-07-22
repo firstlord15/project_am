@@ -15,12 +15,22 @@ import java.util.UUID;
 @Repository
 public interface FinancialRecordRepository extends JpaRepository<FinancialRecord, UUID> {
     /**
-     * Считаем стату по категориям для конкретного user и за выбранный период!
+     * Агрегирует статистику финансовых записей по категориям для конкретного пользователя
+     * за указанный период времени.
+     * <p>
+     * Выполняет группировку (GROUP BY) по категориям, подсчитывая количество записей
+     * и суммируя их общую стоимость.
+     *
+     * @param userId    идентификатор пользователя, чьи данные необходимо получить
+     * @param startDate дата и время начала периода (включительно)
+     * @param endDate   дата и время окончания периода (включительно)
+     * @return список объектов {@link CategoryStatsDTO} со статистикой по каждой найденной категории.
+     *         Если за выбранный период записей нет, вернется пустой список.
      */
     @Query("""
         SELECT
             c.id AS categoryId,
-            c.name AS categoryName,
+            c.title AS categoryTitle,
             c.type AS categoryType,
             COUNT(r.id) AS recordsCount,
             SUM(r.totalAmount) AS totalAmount
@@ -28,7 +38,7 @@ public interface FinancialRecordRepository extends JpaRepository<FinancialRecord
         JOIN r.category c
         WHERE r.userId = :userId
         AND r.createdAt BETWEEN :startDate AND :endDate
-        GROUP BY c.id, c.name, c.type
+        GROUP BY c.id, c.title, c.type
     """)
     List<CategoryStatsDTO> getCategoryStats(
             @Param("userId") String userId,
@@ -37,5 +47,5 @@ public interface FinancialRecordRepository extends JpaRepository<FinancialRecord
     );
 
     Optional<FinancialRecord> findByTitle(String title);
-    List<FinancialRecord> findByCategory_IdAndUserId(UUID categoryId);
+    List<FinancialRecord> findByCategory_IdAndUserId(UUID category_id, String userId);
 }
