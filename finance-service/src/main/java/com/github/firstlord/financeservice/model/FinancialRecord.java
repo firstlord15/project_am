@@ -47,7 +47,7 @@ public class FinancialRecord {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "measure_unit")
-    private MeasureUnit measureUnit; // Единица измерения
+    private MeasureUnit measureUnit;
 
     /**
      * Цена за одну единицу измерения.
