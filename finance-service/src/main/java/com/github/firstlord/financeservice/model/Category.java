@@ -12,6 +12,13 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(
+        name = "categories",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_category_user_title",
+                columnNames = {"user_id", "title"}
+        )
+)
 public class Category {
 
     /**
@@ -24,13 +31,13 @@ public class Category {
     /**
      * Идентификатор пользователя, создателя записи.
      */
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private String userId;
 
     /**
      * Название категории.
      */
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String title;
 
     /**
