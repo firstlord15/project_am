@@ -1,7 +1,9 @@
 package com.github.firstlord.financeservice.dto.mapper;
 
+import com.github.firstlord.financeservice.dto.financialRecord.FinancialRecordCreateDTO;
 import com.github.firstlord.financeservice.dto.financialRecord.FinancialRecordDetailDTO;
 import com.github.firstlord.financeservice.dto.financialRecord.FinancialRecordShortDTO;
+import com.github.firstlord.financeservice.dto.financialRecord.FinancialRecordUpdateDTO;
 import com.github.firstlord.financeservice.model.FinancialRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,12 +23,12 @@ public interface FinancialRecordMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    FinancialRecord fromCreateDTO(FinancialRecordShortDTO dto);
+    FinancialRecord fromCreateDTO(FinancialRecordCreateDTO dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    FinancialRecord fromUpdateDTO(FinancialRecordShortDTO dto);
+    FinancialRecord fromUpdateDTO(FinancialRecordUpdateDTO  dto);
 }

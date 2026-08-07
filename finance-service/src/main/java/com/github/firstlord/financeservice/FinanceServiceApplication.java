@@ -7,9 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "Order Service API",
+                title = "Finance Service API",
                 version = "1.0",
-                description = "API для управления заказами в микросервисном интернет-магазине"
+                description = "API для учёта доходов и расходов, управления финансовыми категориями и получения аналитических данных"
         )
 )
 @SpringBootApplication
