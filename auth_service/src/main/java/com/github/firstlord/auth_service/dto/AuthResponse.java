@@ -1,7 +1,5 @@
 package com.github.firstlord.auth_service.dto;
 
-import lombok.Data;
-
 import java.util.UUID;
 
 public record AuthResponse (

@@ -16,13 +16,12 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.security.Principal;
 import java.time.Duration;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -44,7 +43,7 @@ public class AuthController {
         );
 
         UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
-        String accessToken = tokenService.generateAccessToken(principal);
+        String accessToken = tokenService.generateAccessToken(Objects.requireNonNull(principal));
         String refreshToken = tokenService.generateRefreshToken(principal.getUsername());
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
