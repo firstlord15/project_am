@@ -24,8 +24,9 @@ import java.time.Duration;
 import java.util.Objects;
 
 @Slf4j
+@RestController
 @RequiredArgsConstructor
-@RestController("/api/v1/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
     @Value("${jwt.access-token-ttl-seconds}")
