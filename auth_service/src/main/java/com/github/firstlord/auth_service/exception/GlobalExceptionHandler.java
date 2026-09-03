@@ -97,6 +97,24 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Пользователь уже существует
+     */
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex, WebRequest request) {
+        log.warn("User already exists: {}", ex.getMessage());
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                "Conflict",
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", "")
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    /**
      * Ошибки @Valid на телах запросов (например, пустой username/password).
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
