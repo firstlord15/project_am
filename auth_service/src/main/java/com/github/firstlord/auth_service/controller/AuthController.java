@@ -2,7 +2,10 @@ package com.github.firstlord.auth_service.controller;
 
 import com.github.firstlord.auth_service.dto.AuthResponse;
 import com.github.firstlord.auth_service.dto.LoginRequest;
+import com.github.firstlord.auth_service.dto.RegisterRequest;
+import com.github.firstlord.auth_service.model.User;
 import com.github.firstlord.auth_service.security.UserPrincipal;
+import com.github.firstlord.auth_service.service.AuthService;
 import com.github.firstlord.auth_service.service.JwtTokenService;
 import com.github.firstlord.auth_service.service.TokenRevocationService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +39,28 @@ public class AuthController {
     private final JwtTokenService tokenService;
     private final TokenRevocationService revocationService;
     private final UserDetailsService userDetailsService;
+    private final AuthService authService;
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AuthResponse register(@Valid @RequestBody RegisterRequest request, HttpServletResponse response) {
+        User user = authService.register(request);
+        UserPrincipal principal = new UserPrincipal(user);
+
+        String accessToken = tokenService.generateAccessToken(principal);
+        String refreshToken = tokenService.generateRefreshToken(principal.getUsername());
+
+        addRefreshTokenCookie(response, refreshToken);
+
+        return new AuthResponse(
+                accessToken,
+                "Bearer",
+                expiresIn,
+                principal.getId(),
+                principal.getUsername(),
+                principal.getRole().toString()
+        );
+    }
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody @Valid LoginRequest req, HttpServletResponse response) {
@@ -47,14 +72,7 @@ public class AuthController {
         String accessToken = tokenService.generateAccessToken(Objects.requireNonNull(principal));
         String refreshToken = tokenService.generateRefreshToken(principal.getUsername());
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)
-                .secure(true)
-                .path("/api/v1/auth/refresh")
-                .maxAge(Duration.ofDays(7))
-                .sameSite("Strict")
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        addRefreshTokenCookie(response, refreshToken);
 
         return new AuthResponse(
                 accessToken,
@@ -92,6 +110,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                        @RequestHeader(value = "Authorization", required = false) String authHeader,
                        HttpServletResponse response) {
@@ -112,5 +131,16 @@ public class AuthController {
                 .sameSite("Strict")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
+    }
+
+    private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/api/v1/auth/refresh")
+                .maxAge(Duration.ofDays(7))
+                .sameSite("Strict")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }
