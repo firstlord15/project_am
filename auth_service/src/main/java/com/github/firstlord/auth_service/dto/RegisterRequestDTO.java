@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record RegisterRequest (
+public record RegisterRequestDTO(
         @NotBlank(message = "Username is required")
         @Size(min = 3, max = 100, message = "Username must be between 3 and 100 characters")
         @Pattern(regexp = "^[a-zA-Z0-9_.-]+$", message = "Username can only contain letters, digits, dots, underscores and hyphens")
