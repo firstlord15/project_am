@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+/**
+ * Сервис админ панели.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -25,26 +28,28 @@ public class AdminService {
     private final UserMapper userMapper;
 
     public UserDTO getUserById(UUID id) {
+        log.debug("Fetching user by id: {}", id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
+        log.debug("User found: id={}, username={}", user.getId(), user.getUsername());
         return userMapper.toDTO(user);
     }
 
-    public Page<UserDTO> getAllUsers(
-            Role role,
-            Boolean enabled,
-            Boolean accountLocked,
-            String search,
-            Pageable pageable) {
+    public Page<UserDTO> getAllUsers(Role role, Boolean enabled,
+            Boolean accountLocked, String search, Pageable pageable) {
 
+        log.debug("Fetching users with filters: role={}, enabled={}, accountLocked={}, search={}, page={}", role, enabled, accountLocked, search, pageable);
         Specification<User> spec = Specification
                 .where(UserSpecifications.hasRole(role))
                 .and(UserSpecifications.isEnabled(enabled))
                 .and(UserSpecifications.isLocked(accountLocked))
                 .and(UserSpecifications.search(search));
 
-        return userRepository.findAll(spec, pageable)
+        Page<UserDTO> result = userRepository.findAll(spec, pageable)
                 .map(userMapper::toDTO);
+
+        log.debug("Found {} users out of {} total", result.getNumberOfElements(), result.getTotalElements());
+        return result;
     }
 }

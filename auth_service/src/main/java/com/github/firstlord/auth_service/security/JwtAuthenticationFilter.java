@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +20,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Фильтр аутентификации по JWT из заголовка Authorization.
+ * Проверяет тип токена, отзыв и подпись, наполняет SecurityContext.
+ */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -43,12 +49,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             if (!tokenService.isAccessToken(token)) {
-                // Refuse refresh tokens used as access tokens
+                log.debug("Rejected: refresh token used as access token");
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid token type");
                 return;
             }
 
             if (revocationService.isRevoked(token)) {
+                log.debug("Rejected: token is revoked");
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Token revoked");
                 return;
             }
@@ -63,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
 
         } catch (JwtException e) {
-            // Token expired, tampered, or invalid signature
+            log.debug("Rejected: invalid or expired token ({})", e.getMessage());
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid or expired token");
             return;
         }

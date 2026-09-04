@@ -12,6 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+/**
+ * Сервис регистрации новых пользователей.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -20,13 +23,21 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Регистрирует нового пользователя. Роль всегда выставляется в {@code USER},
+     * пароль сохраняется только в виде хэша.
+     */
     @Transactional
     public User register(RegisterRequestDTO regRequest) {
+        log.debug("Registering user: username={}, email={}", regRequest.username(), regRequest.email());
+
         if (userRepository.findByUsername(regRequest.username()).isPresent()) {
+            log.warn("Registration rejected: username already taken: {}", regRequest.username());
             throw new UserAlreadyExistsException("Username is already taken: " + regRequest.username());
         }
 
         if (userRepository.findByEmail(regRequest.email()).isPresent()) {
+            log.warn("Registration rejected: email already taken: {}", regRequest.email());
             throw new UserAlreadyExistsException("Email is already taken: " + regRequest.email());
         }
 
@@ -40,6 +51,9 @@ public class AuthService {
             user.setPhone(regRequest.phone());
         }
 
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        log.info("New user registered: userId={}, username={}", saved.getId(), saved.getUsername());
+
+        return saved;
     }
 }

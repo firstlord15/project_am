@@ -26,6 +26,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.Duration;
 import java.util.Objects;
 
+/**
+ * Контроллер аутентификации: регистрация, вход, обновление и отзыв токенов.
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -41,9 +44,14 @@ public class AuthController {
     private final UserDetailsService userDetailsService;
     private final AuthService authService;
 
+    /**
+     * Регистрирует нового пользователя и сразу выдаёт пару токенов.
+     */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@Valid @RequestBody RegisterRequestDTO request, HttpServletResponse response) {
+        log.debug("Registration request received: username={}", request.username());
+
         User user = authService.register(request);
         UserPrincipal principal = new UserPrincipal(user);
 
@@ -51,6 +59,8 @@ public class AuthController {
         String refreshToken = tokenService.generateRefreshToken(principal.getUsername());
 
         addRefreshTokenCookie(response, refreshToken);
+
+        log.info("User registered: userId={}, username={}", principal.getId(), principal.getUsername());
 
         return new AuthResponse(
                 accessToken,
@@ -62,8 +72,13 @@ public class AuthController {
         );
     }
 
+    /**
+     * Аутентифицирует пользователя по логину и паролю, выдаёт пару токенов.
+     */
     @PostMapping("/login")
     public AuthResponse login(@RequestBody @Valid LoginRequest req, HttpServletResponse response) {
+        log.debug("Login attempt: username={}", req.username());
+
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.username(), req.password())
         );
@@ -74,6 +89,8 @@ public class AuthController {
 
         addRefreshTokenCookie(response, refreshToken);
 
+        log.info("User logged in: userId={}, username={}", principal.getId(), principal.getUsername());
+
         return new AuthResponse(
                 accessToken,
                 "Bearer",
@@ -84,13 +101,20 @@ public class AuthController {
         );
     }
 
+    /**
+     * Выдаёт новый access-токен по действующему refresh-токену.
+     */
     @PostMapping("/refresh")
     public AuthResponse refresh(@CookieValue("refreshToken") String refreshToken) {
+        log.debug("Refresh token request received");
+
         if (revocationService.isRevoked(refreshToken)) {
+            log.warn("Refresh rejected: token is revoked");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token revoked");
         }
 
         if (tokenService.isAccessToken(refreshToken)) {
+            log.warn("Refresh rejected: access token used instead of refresh token");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token type");
         }
 
@@ -99,6 +123,8 @@ public class AuthController {
 
         String accessToken = tokenService.generateAccessToken(principal);
 
+        log.debug("Access token refreshed: username={}", username);
+
         return new AuthResponse(
                 accessToken,
                 "Bearer",
@@ -109,6 +135,9 @@ public class AuthController {
         );
     }
 
+    /**
+     * Отзывает access- и refresh-токены и удаляет refresh-cookie на клиенте.
+     */
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
@@ -123,6 +152,8 @@ public class AuthController {
             revocationService.revoke(refreshToken);
         }
 
+        log.info("User logged out, tokens revoked");
+
         ResponseCookie expiredCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
                 .secure(true)
@@ -133,8 +164,9 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
     }
 
-
-
+    /**
+     * Кладёт refresh-токен в HttpOnly-cookie, недоступную из JavaScript.
+     */
     private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)

@@ -12,6 +12,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Обёртка над {@link User} для Spring Security.
+ * Изолирует security-слой от JPA-сущности, наружу отдаёт только необходимое.
+ */
 @RequiredArgsConstructor
 public class UserPrincipal implements UserDetails {
 
@@ -52,10 +56,16 @@ public class UserPrincipal implements UserDetails {
         return user.isEnabled();
     }
 
+    /**
+     * Идентификатор пользователя.
+     */
     public UUID getId() {
         return user.getId();
     }
 
+    /**
+     * Роль пользователя.
+     */
     public Role getRole() {
         return user.getRole();
     }

@@ -18,13 +18,20 @@ import org.springframework.web.context.request.WebRequest;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
+/**
+ * Единая обработка исключений для всех контроллеров сервиса.
+ * Приводит любую ошибку к единому формату {@link ErrorResponse}.
+ */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Запрошенный ресурс (например, пользователь по id) не найден.
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, WebRequest request) {
-        log.error("Resource not found: {}", ex.getMessage());
+        log.warn("Resource not found: {}", ex.getMessage());
 
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
@@ -94,7 +101,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Просроченный, повреждённый или подделанный JWT
+     * Просроченный, повреждённый или подделанный JWT.
      */
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ErrorResponse> handleJwtException(JwtException ex, WebRequest request) {
@@ -112,7 +119,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Пользователь уже существует
+     * Пользователь с таким username или email уже существует.
      */
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex, WebRequest request) {
@@ -171,10 +178,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Явный отзыв токена — та ветка, которую вы сейчас кидаете через
-     * ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token revoked").
-     * ResponseStatusException Spring обрабатывает сам по себе,
-     * этот хендлер не обязателен, но оставлен для единообразия формата ответа.
+     * Явный отзыв токена (например, /refresh с отозванным токеном).
      */
     @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatusException(
@@ -193,7 +197,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Страховочный обработчик на случай непредвиденных ошибок —
+     * Страховочный обработчик для непредвиденных ошибок —
      * не даёт стектрейсу утечь клиенту.
      */
     @ExceptionHandler(Exception.class)

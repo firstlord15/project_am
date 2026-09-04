@@ -16,6 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Конфигурация Spring Security: stateless JWT-аутентификация без сессий.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -24,6 +27,10 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
 
+    /**
+     * Публичные эндпоинты аутентификации, админские — только для ADMIN,
+     * всё остальное требует валидного токена.
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -41,11 +48,18 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Кодировщик паролей на основе BCrypt.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);  // Cost factor 12 — balance of security and speed
     }
 
+    /**
+     * Менеджер аутентификации, собранный Spring Security из зарегистрированных
+     * UserDetailsService и PasswordEncoder.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();

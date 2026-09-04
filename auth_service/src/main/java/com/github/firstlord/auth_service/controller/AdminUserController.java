@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+/**
+ * Контроллер админки: получения данных пользователей для админ-панели.
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class AdminUserController {
     @GetMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> getUserById(@PathVariable UUID id) {
+        log.debug("Admin request: GET /users/{}", id);
         return ResponseEntity.ok(adminService.getUserById(id));
     }
 
@@ -37,6 +41,7 @@ public class AdminUserController {
             Pageable pageable
     ) {
         Page<UserDTO> users = adminService.getAllUsers(role, enabled, accountLocked, search, pageable);
+        log.debug("Admin request: GET /users with filters");
         if (users.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(users);
     }
