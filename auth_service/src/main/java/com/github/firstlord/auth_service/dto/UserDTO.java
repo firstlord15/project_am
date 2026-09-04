@@ -17,14 +17,4 @@ public record UserDTO(
         Role role,
         boolean enabled,
         boolean accountLocked
-) {
-    /**
-     * Собирает DTO из сущности пользователя.
-     */
-    public static UserDTO from(User user) {
-        return new UserDTO(
-                user.getId(), user.getUsername(), user.getEmail(),
-                user.getPhone(), user.getRole(), user.isEnabled(), user.isAccountLocked()
-        );
-    }
-}
+) {}
