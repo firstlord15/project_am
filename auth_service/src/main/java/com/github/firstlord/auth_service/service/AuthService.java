@@ -1,6 +1,6 @@
 package com.github.firstlord.auth_service.service;
 
-import com.github.firstlord.auth_service.dto.RegisterRequest;
+import com.github.firstlord.auth_service.dto.RegisterRequestDTO;
 import com.github.firstlord.auth_service.enums.Role;
 import com.github.firstlord.auth_service.exception.UserAlreadyExistsException;
 import com.github.firstlord.auth_service.model.User;
@@ -21,7 +21,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public User register(RegisterRequest regRequest) {
+    public User register(RegisterRequestDTO regRequest) {
         if (userRepository.findByUsername(regRequest.username()).isPresent()) {
             throw new UserAlreadyExistsException("Username is already taken: " + regRequest.username());
         }

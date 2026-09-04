@@ -2,7 +2,7 @@ package com.github.firstlord.auth_service.controller;
 
 import com.github.firstlord.auth_service.dto.AuthResponse;
 import com.github.firstlord.auth_service.dto.LoginRequest;
-import com.github.firstlord.auth_service.dto.RegisterRequest;
+import com.github.firstlord.auth_service.dto.RegisterRequestDTO;
 import com.github.firstlord.auth_service.model.User;
 import com.github.firstlord.auth_service.security.UserPrincipal;
 import com.github.firstlord.auth_service.service.AuthService;
@@ -43,7 +43,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public AuthResponse register(@Valid @RequestBody RegisterRequest request, HttpServletResponse response) {
+    public AuthResponse register(@Valid @RequestBody RegisterRequestDTO request, HttpServletResponse response) {
         User user = authService.register(request);
         UserPrincipal principal = new UserPrincipal(user);
 
@@ -132,6 +132,8 @@ public class AuthController {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
     }
+
+
 
     private void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
